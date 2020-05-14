@@ -20,8 +20,7 @@ resource "aws_s3_bucket" "bucket" {
           },
           "Action": "s3:GetObject",
           "Resource": [
-            "arn:aws:s3:::${var.project}.${var.domain}/*",
-            "arn:aws:s3:::${var.project}.${var.domain}"
+            "arn:aws:s3:::${var.project}.${var.domain}/*"
           ]
       }
   ]

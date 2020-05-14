@@ -18,7 +18,7 @@ validate () {
   if [[ ! -d $DIRNAME ]]; then echo "path $DIRNAME does not exist"; exit 1; fi;
 
   # repo
-  STATUS_CODE=$(curl https://github.com/stinkyfingers/$BASE -I -s -w "%{http_code}" -o /dev/null);
+  STATUS_CODE=$(curl https://github.com/stinkyfingers/$PROJECT -I -s -w "%{http_code}" -o /dev/null);
   if [ $STATUS_CODE -ne 200 ]; then echo 'Repository does not exist'; exit 1; fi;
 
   echo 'building project at:' $FULL_PATH;
