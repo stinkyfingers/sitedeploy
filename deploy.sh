@@ -4,7 +4,7 @@ FULL_PATH=$1;
 PROJECT="$(basename "$FULL_PATH")";
 DIRNAME="$(dirname "$FULL_PATH")";
 SITEDEPLOYDIR=$(pwd);
-AWS_PROFILE='jds';
+AWS_PROFILE='default';
 AWS_REGION='us-west-1';
 
 validate () {

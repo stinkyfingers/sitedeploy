@@ -1,6 +1,6 @@
 variable "profile" {
   type = string
-  default = "jds"
+  default = "default"
 }
 
 variable "region" {

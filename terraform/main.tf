@@ -22,6 +22,17 @@ resource "aws_s3_bucket" "bucket" {
           "Resource": [
             "arn:aws:s3:::${var.project}.${var.domain}/*"
           ]
+      },
+      {
+          "Sid": "Cloudfront Read john-shenk.com",
+          "Effect": "Allow",
+          "Principal": {
+              "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E21XW0OTGH4IR6"
+          },
+          "Action": "s3:GetObject",
+          "Resource": [
+            "arn:aws:s3:::${var.project}.${var.domain}/*"
+          ]
       }
   ]
 }
