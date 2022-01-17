@@ -4,7 +4,7 @@ FULL_PATH=$1;
 PROJECT="$(basename "$FULL_PATH")";
 DIRNAME="$(dirname "$FULL_PATH")";
 SITEDEPLOYDIR=$(pwd);
-AWS_PROFILE='default';
+AWS_PROFILE='jds';
 AWS_REGION='us-west-1';
 
 validate () {
@@ -67,7 +67,7 @@ buildspec () {
 phases:
   install:
     runtime-versions:
-      nodejs: 10
+      nodejs: 14
   pre_build:
     commands:
       - yarn
