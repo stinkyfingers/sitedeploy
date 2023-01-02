@@ -7,36 +7,41 @@ provider "aws" {
 # s3
 resource "aws_s3_bucket" "bucket" {
   bucket = "${var.project}.${var.domain}"
-  acl = "private"
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-      {
-          "Sid": "Cloudfront Read",
-          "Effect": "Allow",
-          "Principal": {
-              "AWS": "${aws_cloudfront_origin_access_identity.oai.iam_arn}"
-          },
-          "Action": "s3:GetObject",
-          "Resource": [
-            "arn:aws:s3:::${var.project}.${var.domain}/*"
-          ]
-      },
-      {
-          "Sid": "Cloudfront Read john-shenk.com",
-          "Effect": "Allow",
-          "Principal": {
-              "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E21XW0OTGH4IR6"
-          },
-          "Action": "s3:GetObject",
-          "Resource": [
-            "arn:aws:s3:::${var.project}.${var.domain}/*"
-          ]
-      }
-  ]
 }
-EOF
+
+resource "aws_s3_bucket_policy" "cloudfront" {
+  bucket = aws_s3_bucket.bucket.id
+  policy = data.aws_iam_policy_document.cloudfront.json
+}
+
+data "aws_iam_policy_document" "cloudfront" {
+  statement {
+    principals {
+      type        = "Service"
+      identifiers = [
+        "cloudfront.amazonaws.com"
+      ]
+    }
+
+    actions = [
+      "s3:GetObject"
+    ]
+    effect = "Allow"
+
+    resources = [
+      "arn:aws:s3:::${var.project}.${var.domain}/*"
+    ]
+    condition {
+      test = "StringEquals"
+      variable = "AWS:SourceArn"
+      values = ["${aws_cloudfront_distribution.distribution.arn}"]
+    }
+  }
+}
+
+resource "aws_s3_bucket_acl" "bucket" {
+  bucket = aws_s3_bucket.bucket.id
+  acl    = "private"
 }
 
 resource "aws_s3_bucket_public_access_block" "pab" {
@@ -57,9 +62,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   origin {
     domain_name = aws_s3_bucket.bucket.bucket_domain_name
     origin_id   = local.s3_origin_id
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
-    }
+    origin_access_control_id = aws_cloudfront_origin_access_control.default.id
   }
 
   enabled             = true
@@ -103,6 +106,20 @@ resource "aws_cloudfront_distribution" "distribution" {
       minimum_protocol_version       = "TLSv1.1_2016"
       ssl_support_method             = "sni-only"
   }
+
+  custom_error_response {
+    error_code = 403
+    response_code = 200
+    response_page_path = "/index.html"
+  }
+}
+
+resource "aws_cloudfront_origin_access_control" "default" {
+  name                              = "${var.project}"
+  description                       = "Default Policy"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
 }
 
 resource "aws_route53_record" "record" {
