@@ -44,6 +44,13 @@ resource "aws_s3_bucket_acl" "bucket" {
   acl    = "private"
 }
 
+resource "aws_s3_bucket_ownership_controls" "s3_bucket_acl_ownership" {
+  bucket = aws_s3_bucket.bucket.id
+  rule {
+    object_ownership = "ObjectWriter"
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "pab" {
   bucket = aws_s3_bucket.bucket.id
   block_public_acls   = true
