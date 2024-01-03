@@ -67,7 +67,7 @@ buildspec () {
 phases:
   install:
     runtime-versions:
-      nodejs: 14
+      nodejs: 20
   pre_build:
     commands:
       - yarn
