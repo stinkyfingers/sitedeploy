@@ -53,11 +53,6 @@ data "aws_iam_policy_document" "cloudfront" {
   }
 }
 
-resource "aws_s3_bucket_acl" "bucket" {
-  bucket = aws_s3_bucket.bucket.id
-  acl    = "private"
-}
-
 resource "aws_s3_bucket_ownership_controls" "s3_bucket_acl_ownership" {
   bucket = aws_s3_bucket.bucket.id
   rule {
@@ -83,7 +78,9 @@ resource "aws_cloudfront_distribution" "distribution" {
   origin {
     domain_name = aws_s3_bucket.bucket.bucket_domain_name
     origin_id   = local.s3_origin_id
-    origin_access_control_id = aws_cloudfront_origin_access_control.default.id
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
+    }
   }
 
   enabled             = true
